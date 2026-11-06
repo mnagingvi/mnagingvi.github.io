@@ -1,262 +1,819 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>mnagingvi · small pull requests, one at a time</title>
-<meta name="description" content="Improving every project with one tiny change.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='256' r='256' fill='%234C6495'/%3E%3Cpath fill='white' d='M97 291C129 315 152 282 198 282C218 282 238 286 252 294C278 309 296 302 296 281C296 258 272 240 272 207C272 164 299 131 335 131C358 131 373 146 373 164C373 179 362 187 348 186C332 185 324 175 314 181C300 191 303 211 315 228C337 258 353 278 344 309C333 350 296 374 242 378C178 384 121 361 105 325Z'/%3E%3Cpath fill='%23F4A052' d='M368 157L407 174Q390 183 369 180Z'/%3E%3C/svg%3E">
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Mnagingvi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-  :root{
-    --bg:#0f1a2e;
-    --bg2:#16243d;
-    --card:#1a2b48;
-    --line:#2c4268;
-    --text:#e8eef8;
-    --muted:#9db0cf;
-    --accent:#8598ce;
-    --orange:#f4a052;
-    --orange2:#df7c3e;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{
-    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    background:radial-gradient(1200px 600px at 50% -200px,#253b61 0%,var(--bg) 60%) no-repeat,var(--bg);
-    color:var(--text);
-    line-height:1.6;
-  }
-  a{color:var(--accent);text-decoration:none}
-  a:hover{color:var(--orange)}
-  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+/* Layout: twilight hero with a living swan, then a reading column separated by water lines.
+   Fun lives in small interactions: poke the swan, size up a pull request, merge the sample. */
+:root {
+  --bg: #f3f6fb;
+  --surface: #ffffff;
+  --fg: #1c2a44;
+  --muted: #55627d;
+  --line: #c3cfe3;
+  --accent: #b4521a;
+  --accent-soft: #fbe6d6;
+  --blue: #3f5688;
+  --add-bg: #e3f3e8;
+  --add-fg: #1d5b36;
+  --del-bg: #fbe5e3;
+  --del-fg: #8a2b22;
+  --merged-bg: #ece3fb;
+  --merged-fg: #5b32a8;
+  --ok: #2f8a55;
+  --warn: #c98512;
+  --bad: #c0392b;
+  --shadow: 0 10px 24px rgba(28, 42, 68, 0.1);
 
-  .banner{width:100%;display:block}
-  .banner img{width:100%;max-width:1100px;margin:0 auto;display:block}
+  --hero-a: #8598ce;
+  --hero-b: #4c6495;
+  --hero-c: #253b61;
+  --hero-fg: #f4f7fc;
+  --hero-muted: #c6d3ea;
+  --beak: #f4a052;
 
-  nav{
-    display:flex;justify-content:center;gap:24px;flex-wrap:wrap;
-    padding:14px 0;font-size:.95rem;
-    border-bottom:1px solid var(--line);
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111c31; --surface: #182540; --fg: #e8eef8; --muted: #9fb0cf;
+    --line: #2f4165; --accent: #f4a052; --accent-soft: #3a2a22; --blue: #8598ce;
+    --add-bg: #17382a; --add-fg: #8fdcae; --del-bg: #3d1f21; --del-fg: #f2a9a2;
+    --merged-bg: #2e2150; --merged-fg: #cdb6ff;
+    --ok: #5cc98b; --warn: #f0b441; --bad: #f27d72;
+    --shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+  --bg: #111c31; --surface: #182540; --fg: #e8eef8; --muted: #9fb0cf;
+  --line: #2f4165; --accent: #f4a052; --accent-soft: #3a2a22; --blue: #8598ce;
+  --add-bg: #17382a; --add-fg: #8fdcae; --del-bg: #3d1f21; --del-fg: #f2a9a2;
+  --merged-bg: #2e2150; --merged-fg: #cdb6ff;
+  --ok: #5cc98b; --warn: #f0b441; --bad: #f27d72;
+  --shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  color-scheme: dark;
+}
 
-  .hero{
-    display:flex;align-items:center;gap:32px;flex-wrap:wrap;justify-content:center;
-    padding:56px 0 40px;
-  }
-  .avatar{
-    width:180px;height:180px;flex:none;border-radius:50%;
-    box-shadow:0 0 0 4px var(--line),0 20px 50px rgba(0,0,0,.45);
-    animation:float 6s ease-in-out infinite;
-  }
-  @keyframes float{50%{transform:translateY(-8px)}}
-  .hero h1{font-size:2.2rem;line-height:1.2}
-  .hero h1 span{color:var(--orange)}
-  .hero p{color:var(--muted);max-width:480px;margin:12px 0 20px}
-  .btn{
-    display:inline-block;padding:10px 20px;border-radius:999px;font-weight:600;
-    background:linear-gradient(135deg,var(--orange),var(--orange2));color:#1a1206;
-  }
-  .btn:hover{color:#1a1206;filter:brightness(1.08)}
-  .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line);margin-left:8px}
-  .btn.ghost:hover{color:var(--orange);border-color:var(--orange)}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.6;
+}
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
 
-  section{padding:48px 0}
-  h2{font-size:1.5rem;margin-bottom:8px}
-  .sub{color:var(--muted);margin-bottom:28px}
+.wrap {
+  width: 100%;
+  max-width: 62rem;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
 
-  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
-  .card{
-    background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;
-    transition:transform .2s,border-color .2s;
-  }
-  .card:hover{transform:translateY(-3px);border-color:var(--accent)}
-  .card h3{font-size:1.05rem;margin-bottom:6px}
-  .card p{color:var(--muted);font-size:.95rem}
-  .icon{font-size:1.6rem;margin-bottom:10px}
+/* Hero */
+.hero {
+  background: linear-gradient(150deg, var(--hero-a) 0%, var(--hero-b) 52%, var(--hero-c) 100%);
+  color: var(--hero-fg);
+  overflow: hidden;
+}
+.hero .wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 2.5rem;
+  padding-block: 3.5rem 4rem;
+}
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hero-muted);
+  margin: 0 0 1rem;
+}
+h1 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(2.8rem, 8vw, 5.2rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin: 0 0 1.1rem;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+h1 span {
+  text-decoration: underline wavy var(--beak);
+  text-decoration-thickness: 4px;
+  text-underline-offset: 0.14em;
+  text-decoration-skip-ink: none;
+}
+.lede {
+  font-size: 1.25rem;
+  max-width: 30rem;
+  color: var(--hero-muted);
+  margin: 0 0 1.25rem;
+}
+.lede strong { color: var(--hero-fg); font-weight: 600; }
+.today {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  margin: 0 0 1.75rem;
+  color: var(--hero-muted);
+  min-height: 3.2em;
+}
+.today b {
+  display: inline-block;
+  color: var(--beak);
+  font-weight: 500;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.today b.out { opacity: 0; transform: translateY(6px); }
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.btn {
+  display: inline-block;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  border: 2px solid var(--hero-fg);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.btn:hover { transform: translateY(-2px) rotate(-1deg); }
+.btn.primary { background: var(--beak); border-color: var(--beak); color: #2a1a0c; }
+.btn.primary:hover { background: #ffb671; border-color: #ffb671; }
+.btn.ghost { color: var(--hero-fg); }
+.btn.ghost:hover { background: rgba(255, 255, 255, 0.14); }
 
-  .steps{counter-reset:s;display:grid;gap:14px}
-  .step{
-    counter-increment:s;display:flex;gap:16px;align-items:flex-start;
-    background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:16px 20px;
-  }
-  .step::before{
-    content:counter(s);flex:none;width:32px;height:32px;border-radius:50%;
-    display:grid;place-items:center;font-weight:700;color:#1a1206;
-    background:linear-gradient(135deg,var(--orange),var(--orange2));
-  }
-  .step b{display:block}
-  .step span{color:var(--muted);font-size:.95rem}
+/* The swan */
+.swan { position: relative; width: 100%; max-width: 22rem; justify-self: center; }
+.swan-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.swan-btn svg { display: block; width: 100%; height: auto; filter: drop-shadow(0 18px 30px rgba(10, 20, 45, 0.4)); }
+.bubble {
+  position: absolute;
+  top: 7%;
+  left: 50%;
+  max-width: 82%;
+  transform: translate(-50%, 6px);
+  background: var(--hero-fg);
+  color: var(--hero-c);
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.3;
+  text-align: center;
+  padding: 0.5rem 0.9rem;
+  border-radius: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.bubble.show { opacity: 1; transform: translate(-50%, 0); }
+.swan-hint {
+  margin: 0.6rem 0 0;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hero-muted);
+}
 
-  .repo{display:flex;flex-direction:column;gap:8px}
-  .repo .meta{display:flex;gap:14px;font-size:.82rem;color:var(--muted);margin-top:auto}
-  .repo .tag{color:var(--orange)}
-  .status{color:var(--muted);font-style:italic}
+@media (prefers-reduced-motion: no-preference) {
+  .swan-body { animation: glide 6s ease-in-out infinite; transform-origin: 240px 380px; }
+  .wing { animation: flutter 7s ease-in-out infinite; transform-origin: 150px 310px; }
+  .eye { animation: blink 5s ease-in-out infinite; transform-origin: 346px 158px; }
+  .waves { animation: drift 7s ease-in-out infinite alternate; }
+  .ring { animation: ripple 4.5s linear infinite; transform-origin: 240px 392px; opacity: 0; }
+  .ring.r2 { animation-delay: 1.5s; }
+  .ring.r3 { animation-delay: 3s; }
+  .glow { animation: pulse 6s ease-in-out infinite; transform-origin: 157px 157px; }
+  .star { animation: twinkle 3.2s ease-in-out infinite; }
+  .star.s2 { animation-delay: 0.7s; }
+  .star.s3 { animation-delay: 1.4s; }
+  .star.s4 { animation-delay: 2.1s; }
+  .star.s5 { animation-delay: 2.7s; }
+  .splash { animation: splash 0.9s ease-out forwards; transform-origin: 240px 392px; }
+  .swan-btn:active .swan-body { transform: translateY(3px); }
+  .loop li::after { animation: lit 8s linear infinite; }
+  .loop li:nth-child(2)::after { animation-delay: 2s; }
+  .loop li:nth-child(3)::after { animation-delay: 4s; }
+  .loop li:nth-child(4)::after { animation-delay: 6s; }
+}
+@keyframes glide {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(0, -6px) rotate(-1.2deg); }
+}
+@keyframes flutter {
+  0%, 78%, 100% { transform: none; }
+  84% { transform: translateY(-4px) rotate(-3deg) scale(1.02); }
+  90% { transform: translateY(1px) rotate(1deg); }
+}
+@keyframes blink {
+  0%, 93%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); }
+}
+@keyframes drift {
+  from { transform: translateX(-10px); }
+  to { transform: translateX(10px); }
+}
+@keyframes ripple {
+  0% { transform: scale(0.45); opacity: 0.55; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(1.1); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.95; }
+}
+@keyframes splash {
+  0% { transform: scale(0.3); opacity: 0.9; }
+  100% { transform: scale(6); opacity: 0; }
+}
+@keyframes lit {
+  0% { opacity: 1; }
+  22% { opacity: 1; }
+  30% { opacity: 0; }
+  100% { opacity: 0; }
+}
 
-  .quote{
-    text-align:center;font-size:1.25rem;color:var(--text);
-    padding:36px 20px;border:1px dashed var(--line);border-radius:18px;background:var(--bg2);
-  }
-  .quote em{color:var(--orange);font-style:normal}
+/* Sections */
+section { padding-block: 2.5rem 0; }
+.water { margin-top: 2.5rem; color: var(--line); }
+.water svg { display: block; width: 100%; height: 18px; }
+.kicker {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.6rem;
+}
+h2 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+.prose { max-width: 40rem; margin: 0 0 1rem; }
+.prose.muted { color: var(--muted); }
+#approach { padding-top: 3.5rem; }
 
-  footer{
-    text-align:center;color:var(--muted);font-size:.9rem;
-    padding:32px 0 48px;border-top:1px solid var(--line);margin-top:24px;
-  }
-  @media (prefers-reduced-motion:reduce){.avatar{animation:none}}
+/* The loop */
+.loop {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  counter-reset: step;
+}
+.loop li {
+  counter-increment: step;
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.1rem 1.1rem 1.25rem;
+  min-width: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.loop li:hover { transform: translateY(-4px) rotate(-0.6deg); box-shadow: var(--shadow); }
+.loop li::before {
+  content: "Step " counter(step);
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.6rem;
+}
+.loop li::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: var(--accent);
+  opacity: 0;
+}
+.loop h3 { font-family: var(--display); font-size: 1.25rem; margin: 0 0 0.4rem; line-height: 1.2; }
+.loop p { margin: 0; color: var(--muted); font-size: 0.97rem; line-height: 1.5; }
+.loop-note { margin: 1.1rem 0 0; font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+
+/* Review meter */
+.meter {
+  margin-top: 2rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.25rem;
+}
+.meter-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.5rem 1rem; margin-bottom: 0.75rem; }
+.meter label { font-weight: 600; }
+.meter output { font-family: var(--mono); font-size: 1.1rem; color: var(--accent); font-variant-numeric: tabular-nums; }
+.meter input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0.25rem 0 0.9rem; }
+.track { height: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.fill { height: 100%; width: 18%; background: var(--ok); border-radius: 999px; transition: width 0.15s ease, background 0.2s ease; }
+.fill.warn { background: var(--warn); }
+.fill.bad { background: var(--bad); }
+.verdict { margin-top: 1rem; }
+.verdict b { display: block; font-family: var(--display); font-size: 1.3rem; line-height: 1.2; margin-bottom: 0.15rem; }
+.verdict span { color: var(--muted); }
+.meter-foot { margin: 0.9rem 0 0; font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+
+/* Examples of small */
+.small-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0 2.5rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.small-grid li { padding: 1rem 0; border-top: 1px solid var(--line); min-width: 0; transition: transform 0.2s ease; }
+.small-grid li:hover { transform: translateX(6px); }
+.small-grid b { display: block; font-family: var(--display); font-size: 1.1rem; margin-bottom: 0.2rem; }
+.small-grid span { color: var(--muted); font-size: 0.97rem; line-height: 1.5; }
+
+/* Sample PR */
+.pr {
+  position: relative;
+  margin-top: 2rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.pr-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+.pr-head h3 { font-family: var(--display); font-size: 1.2rem; line-height: 1.25; margin: 0; flex: 1 1 14rem; min-width: 0; }
+.tag, .state {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+.tag { background: var(--accent-soft); color: var(--accent); }
+.state { background: var(--add-bg); color: var(--add-fg); }
+.state.merged { background: var(--merged-bg); color: var(--merged-fg); }
+.pr-body { padding: 1rem 1.25rem; color: var(--muted); font-size: 0.97rem; }
+.pr-body p { margin: 0 0 0.5rem; max-width: 40rem; }
+.diff { overflow-x: auto; border-top: 1px solid var(--line); }
+.diff pre { margin: 0; font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; min-width: max-content; }
+.diff .l { display: block; padding: 0 1.25rem; white-space: pre; }
+.diff .ctx { color: var(--muted); }
+.diff .add { background: var(--add-bg); color: var(--add-fg); }
+.diff .del { background: var(--del-bg); color: var(--del-fg); }
+.diff .file { color: var(--muted); padding-block: 0.4rem; border-bottom: 1px solid var(--line); }
+.pr-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--line);
+}
+.merge {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.6rem 1.1rem;
+  border-radius: 10px;
+  border: 0;
+  background: var(--ok);
+  color: #fff;
+  transition: transform 0.15s ease;
+}
+:root[data-theme="dark"] .merge { color: #0e1a2e; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .merge { color: #0e1a2e; } }
+.merge:hover { transform: translateY(-2px); }
+.merge.done { background: var(--merged-bg); color: var(--merged-fg); }
+.pr-foot small { color: var(--muted); }
+.feather {
+  position: absolute;
+  top: 0;
+  width: 9px;
+  height: 20px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  pointer-events: none;
+  opacity: 0;
+  animation: fall 1.6s ease-in forwards;
+}
+@keyframes fall {
+  0% { transform: translate(0, -10px) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--dx), 340px) rotate(var(--rot)); opacity: 0; }
+}
+
+/* Say hello */
+.hello {
+  margin-top: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+.hello p { margin: 0; max-width: 32rem; }
+.hello .btn { border-color: var(--fg); color: var(--fg); }
+.hello .btn:hover { background: var(--fg); color: var(--bg); }
+
+footer { padding-block: 3rem 3rem; }
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+  color: var(--muted);
+}
+.foot p { margin: 0; }
+.foot code { font-family: var(--mono); font-size: 0.9rem; color: var(--fg); overflow-wrap: anywhere; }
+
+@media (max-width: 52rem) {
+  .loop { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 40rem) {
+  body { font-size: 16px; }
+  .hero .wrap { grid-template-columns: minmax(0, 1fr); padding-block: 2.5rem 3rem; gap: 2rem; }
+  .swan { max-width: 16rem; order: -1; justify-self: start; }
+  .loop { grid-template-columns: minmax(0, 1fr); }
+}
 </style>
-</head>
-<body>
 
-<a class="banner" href="https://github.com/mnagingvi">
-  <img alt="mnagingvi: Just making small pull requests and issues, one at a time"
-       src="https://capsule-render.vercel.app/api?type=blur&height=300&color=gradient&section=header&reversal=false&text=mnagingvi&textBg=false&fontSize=70&fontAlign=50&fontAlignY=50&rotate=0&strokeWidth=0&desc=Just+Making+Small+Small+Pull+request+the+issue.+one+time+at+a+time.&descSize=20&descAlign=50&descAlignY=70">
-</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="wave" viewBox="0 0 1200 18" preserveAspectRatio="none">
+    <path d="M0 9q25 -9 50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </symbol>
+</svg>
 
-<nav class="wrap">
-  <a href="#philosophy">Philosophy</a>
-  <a href="#how">How I work</a>
-  <a href="#projects">Projects</a>
-  <a href="https://github.com/mnagingvi" target="_blank" rel="noopener">GitHub ↗</a>
-</nav>
-
-<main class="wrap">
-
-  <!-- HERO -->
-  <div class="hero">
-    <svg class="avatar" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="av-title av-desc">
-      <title id="av-title">Swan profile picture</title>
-      <desc id="av-desc">A graceful white swan with an orange beak on a circular twilight-blue background.</desc>
-      <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
-          <stop stop-color="#8598CE"/><stop offset=".55" stop-color="#4C6495"/><stop offset="1" stop-color="#253B61"/>
-        </linearGradient>
-        <linearGradient id="feathers" x1="0" y1="0" x2=".3" y2="1">
-          <stop stop-color="#FFFFFF"/><stop offset="1" stop-color="#E6EEF6"/>
-        </linearGradient>
-        <linearGradient id="wing" x1="0" y1="0" x2=".6" y2="1">
-          <stop stop-color="#F6F8FC"/><stop offset="1" stop-color="#C9D7EA"/>
-        </linearGradient>
-        <clipPath id="circle"><circle cx="256" cy="256" r="256"/></clipPath>
-      </defs>
-      <g clip-path="url(#circle)">
-        <path fill="url(#sky)" d="M0 0h512v512H0z"/>
-        <circle cx="157" cy="157" r="57" fill="#FFEAC2" opacity=".18"/>
-        <circle cx="112" cy="229" r="3" fill="#FFFFFF" opacity=".45"/>
-        <circle cx="403" cy="255" r="2.5" fill="#FFFFFF" opacity=".4"/>
-        <path d="M0 354Q256 319 512 354V512H0Z" fill="#193455" opacity=".24"/>
-        <ellipse cx="248" cy="391" rx="142" ry="12" fill="#C3D8F0" opacity=".12"/>
-        <g fill="none" stroke="#C5DDF3" stroke-linecap="round">
-          <path d="M105 391Q246 416 386 391" stroke-width="4" opacity=".45"/>
-          <path d="M152 420Q248 434 341 419" stroke-width="3" opacity=".25"/>
-        </g>
-        <path d="M97 291C129 315 152 282 198 282C218 282 238 286 252 294C278 309 296 302 296 281C296 258 272 240 272 207C272 164 299 131 335 131C358 131 373 146 373 164C373 179 362 187 348 186C332 185 324 175 314 181C300 191 303 211 315 228C337 258 353 278 344 309C333 350 296 374 242 378C178 384 121 361 105 325Z" fill="url(#feathers)"/>
-        <path d="M314 181C300 191 303 211 315 228C337 258 353 278 344 309C337 335 319 353 291 365C315 338 325 318 325 296C325 267 305 246 295 222C287 204 295 188 309 182Z" fill="#C7D6E8" opacity=".5"/>
-        <path d="M139 309C177 281 237 283 276 316C291 329 307 334 323 327C303 352 267 366 226 361C185 357 155 337 139 309Z" fill="url(#wing)"/>
-        <g fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" opacity=".72">
-          <path d="M159 312Q204 339 270 325"/>
-          <path d="M176 333Q217 352 269 342"/>
-        </g>
-        <path d="M368 157L407 174Q390 183 369 180Z" fill="#F4A052"/>
-        <path d="M371 172L407 174Q390 183 369 180Z" fill="#DF7C3E"/>
-        <path d="M359 148C368 152 373 159 373 166L371 180C363 181 357 178 354 172C361 168 362 158 359 148Z" fill="#253046"/>
-        <circle cx="346" cy="158" r="4" fill="#253046"/>
-        <circle cx="347" cy="157" r="1.2" fill="#FFFFFF"/>
-      </g>
-    </svg>
-
+<header class="hero">
+  <div class="wrap">
     <div>
-      <h1>Hi, I'm <span>mnagingvi</span> 👋</h1>
-      <p>I improve projects with one tiny change at a time: a small pull request, a focused issue, a little less friction for the next person.</p>
-      <a class="btn" href="https://github.com/mnagingvi" target="_blank" rel="noopener">View my GitHub</a>
-      <a class="btn ghost" href="#projects">See projects</a>
+      <p class="eyebrow">GitHub &middot; @Mnagingvi</p>
+      <h1><span>Mnagingvi</span></h1>
+      <p class="lede"><strong>One small pull request at a time.</strong> Every issue and every fix is a lasting improvement to the project it lands in.</p>
+      <p class="today">Today's small change: <b id="rot">a typo in the docs</b></p>
+      <div class="actions">
+        <a class="btn primary" href="https://github.com/Mnagingvi">See my GitHub</a>
+        <a class="btn ghost" href="#approach">How I contribute</a>
+      </div>
+    </div>
+    <div class="swan">
+      <button class="swan-btn" id="swanBtn" type="button" aria-label="Poke the swan">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="swan-title swan-desc">
+          <title id="swan-title">Swan profile picture</title>
+          <desc id="swan-desc">A graceful white swan with an orange beak gliding on a circular twilight-blue background, with water rings spreading around it.</desc>
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+              <stop stop-color="#8598CE"/>
+              <stop offset=".55" stop-color="#4C6495"/>
+              <stop offset="1" stop-color="#253B61"/>
+            </linearGradient>
+            <linearGradient id="feathers" x1="0" y1="0" x2=".3" y2="1">
+              <stop stop-color="#FFFFFF"/>
+              <stop offset="1" stop-color="#E6EEF6"/>
+            </linearGradient>
+            <linearGradient id="wing" x1="0" y1="0" x2=".6" y2="1">
+              <stop stop-color="#F6F8FC"/>
+              <stop offset="1" stop-color="#C9D7EA"/>
+            </linearGradient>
+            <clipPath id="circle"><circle cx="256" cy="256" r="256"/></clipPath>
+          </defs>
+          <g clip-path="url(#circle)">
+            <path fill="url(#sky)" d="M0 0h512v512H0z"/>
+            <circle class="glow" cx="157" cy="157" r="57" fill="#FFEAC2" opacity=".18"/>
+            <circle class="star s1" cx="112" cy="229" r="3" fill="#FFFFFF" opacity=".45"/>
+            <circle class="star s2" cx="403" cy="255" r="2.5" fill="#FFFFFF" opacity=".4"/>
+            <circle class="star s3" cx="268" cy="78" r="2.5" fill="#FFFFFF" opacity=".5"/>
+            <circle class="star s4" cx="372" cy="104" r="2" fill="#FFFFFF" opacity=".5"/>
+            <circle class="star s5" cx="64" cy="140" r="2" fill="#FFFFFF" opacity=".5"/>
+            <path d="M0 354Q256 319 512 354V512H0Z" fill="#193455" opacity=".24"/>
+            <ellipse cx="248" cy="391" rx="142" ry="12" fill="#C3D8F0" opacity=".12"/>
+            <g class="waves" fill="none" stroke="#C5DDF3" stroke-linecap="round">
+              <path d="M105 391Q246 416 386 391" stroke-width="4" opacity=".45"/>
+              <path d="M152 420Q248 434 341 419" stroke-width="3" opacity=".25"/>
+            </g>
+            <g fill="none" stroke="#C5DDF3" stroke-width="3">
+              <ellipse class="ring r1" cx="240" cy="392" rx="60" ry="8"/>
+              <ellipse class="ring r2" cx="240" cy="392" rx="60" ry="8"/>
+              <ellipse class="ring r3" cx="240" cy="392" rx="60" ry="8"/>
+            </g>
+            <g id="splash" fill="none" stroke="#FFFFFF" stroke-width="3"></g>
+            <g class="swan-body">
+              <path d="M97 291C129 315 152 282 198 282C218 282 238 286 252 294C278 309 296 302 296 281C296 258 272 240 272 207C272 164 299 131 335 131C358 131 373 146 373 164C373 179 362 187 348 186C332 185 324 175 314 181C300 191 303 211 315 228C337 258 353 278 344 309C333 350 296 374 242 378C178 384 121 361 105 325Z" fill="url(#feathers)"/>
+              <path d="M314 181C300 191 303 211 315 228C337 258 353 278 344 309C337 335 319 353 291 365C315 338 325 318 325 296C325 267 305 246 295 222C287 204 295 188 309 182Z" fill="#C7D6E8" opacity=".5"/>
+              <g class="wing">
+                <path d="M139 309C177 281 237 283 276 316C291 329 307 334 323 327C303 352 267 366 226 361C185 357 155 337 139 309Z" fill="url(#wing)"/>
+                <g fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" opacity=".72">
+                  <path d="M159 312Q204 339 270 325"/>
+                  <path d="M176 333Q217 352 269 342"/>
+                </g>
+              </g>
+              <path d="M368 157L407 174Q390 183 369 180Z" fill="#F4A052"/>
+              <path d="M371 172L407 174Q390 183 369 180Z" fill="#DF7C3E"/>
+              <path d="M359 148C368 152 373 159 373 166L371 180C363 181 357 178 354 172C361 168 362 158 359 148Z" fill="#253046"/>
+              <g class="eye">
+                <circle cx="346" cy="158" r="4" fill="#253046"/>
+                <circle cx="347" cy="157" r="1.2" fill="#FFFFFF"/>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </button>
+      <div class="bubble" id="bubble" role="status" aria-live="polite"></div>
+      <p class="swan-hint">Poke the swan</p>
     </div>
   </div>
+</header>
 
-  <!-- PHILOSOPHY -->
-  <section id="philosophy">
-    <h2>Small on purpose</h2>
-    <p class="sub">Big rewrites get stuck in review. Tiny changes get merged.</p>
-    <div class="grid">
-      <div class="card">
-        <div class="icon">🪶</div>
-        <h3>One change per PR</h3>
-        <p>A typo, a clearer error message, a missing doc line. Each pull request does exactly one thing, so it's easy to review and easy to revert.</p>
+<main>
+  <div class="wrap">
+
+    <section id="approach">
+      <p class="kicker">The approach</p>
+      <h2>Small changes stay in a project for good</h2>
+      <p class="prose">A merged pull request does not expire. A corrected sentence in the docs, a clearer error message or a test for a forgotten edge case keeps helping every person who uses the project after it.</p>
+      <p class="prose muted">So I work on one thing at a time. A small change is quick to review, easy to understand and simple to undo if something is off. Maintainers can say yes to it without a long meeting or a weekend of reading.</p>
+    </section>
+
+    <div class="water" aria-hidden="true"><svg viewBox="0 0 1200 18" preserveAspectRatio="none"><use href="#wave"/></svg></div>
+
+    <section id="loop">
+      <p class="kicker">The loop</p>
+      <h2>Four steps, then start again</h2>
+      <ol class="loop">
+        <li>
+          <h3>Notice</h3>
+          <p>Use the project and write down the one thing that tripped me up.</p>
+        </li>
+        <li>
+          <h3>Open an issue</h3>
+          <p>Describe it plainly, with what I expected and what happened, so others can confirm it.</p>
+        </li>
+        <li>
+          <h3>Send a small PR</h3>
+          <p>Fix only that thing, link the issue and explain the change in a few sentences.</p>
+        </li>
+        <li>
+          <h3>Follow it through</h3>
+          <p>Answer review comments, adjust, and wait for the merge before picking up the next one.</p>
+        </li>
+      </ol>
+      <p class="loop-note">Only one change is open at a time.</p>
+    </section>
+
+    <div class="water" aria-hidden="true"><svg viewBox="0 0 1200 18" preserveAspectRatio="none"><use href="#wave"/></svg></div>
+
+    <section id="size">
+      <p class="kicker">Why small</p>
+      <h2>How big is your pull request?</h2>
+      <p class="prose muted">Drag the slider and see how a reviewer is likely to feel.</p>
+      <div class="meter">
+        <div class="meter-top">
+          <label for="loc">Lines changed</label>
+          <output id="locOut" for="loc">4 lines</output>
+        </div>
+        <input type="range" id="loc" min="0" max="100" value="18">
+        <div class="track"><div class="fill" id="fill"></div></div>
+        <div class="verdict">
+          <b id="vTitle">Read over coffee</b>
+          <span id="vText">About a minute. The reviewer says yes before the tea cools.</span>
+        </div>
+        <p class="meter-foot">A rule of thumb, not data. I aim for the left side of the slider.</p>
       </div>
-      <div class="card">
-        <div class="icon">🔍</div>
-        <h3>One issue at a time</h3>
-        <p>Issues that are specific, reproducible and kind. One problem per issue, with enough detail for a maintainer to act on it.</p>
+    </section>
+
+    <div class="water" aria-hidden="true"><svg viewBox="0 0 1200 18" preserveAspectRatio="none"><use href="#wave"/></svg></div>
+
+    <section id="small">
+      <p class="kicker">What counts as small</p>
+      <h2>Changes a reviewer can read in a minute</h2>
+      <ul class="small-grid">
+        <li><b>A typo or a dead link</b><span>Docs and READMEs are the first thing a new user reads.</span></li>
+        <li><b>A clearer first line</b><span>Say what the project does before anything else.</span></li>
+        <li><b>A missing example</b><span>One short snippet that shows how a function is called.</span></li>
+        <li><b>A clearer error message</b><span>Say what went wrong and what to try next.</span></li>
+        <li><b>A test for an edge case</b><span>Empty input, a very large value or an unusual locale.</span></li>
+        <li><b>A well-written issue</b><span>Steps to reproduce a bug can be a contribution on their own.</span></li>
+      </ul>
+    </section>
+
+    <div class="water" aria-hidden="true"><svg viewBox="0 0 1200 18" preserveAspectRatio="none"><use href="#wave"/></svg></div>
+
+    <section id="example">
+      <p class="kicker">What it looks like</p>
+      <h2>A sample pull request</h2>
+      <p class="prose muted">An illustration of the size and shape I aim for. The project is made up, and nothing here is real. Press the green button to merge it.</p>
+      <div class="pr" id="pr">
+        <div class="pr-head">
+          <span class="tag">Example</span>
+          <h3>Make the README's first line say what the project does</h3>
+          <span class="state" id="prState">Open</span>
+        </div>
+        <div class="pr-body">
+          <p>The README opens with only the project name, so new visitors have to scroll to find out what tinyparse is for. This adds a short summary to the title line.</p>
+          <p>Closes the linked issue. Docs only, no code changes.</p>
+        </div>
+        <div class="diff">
+          <pre><span class="l file">README.md  @@ -1,3 +1,3 @@</span><span class="l del">- # tinyparse</span><span class="l add">+ # tinyparse: read INI files in one line, no dependencies</span><span class="l ctx">  </span><span class="l ctx">  ## Install</span></pre>
+        </div>
+        <div class="pr-foot">
+          <button class="merge" id="mergeBtn" type="button">Merge pull request</button>
+          <small id="mergeHint">Nothing real happens. Then it is back to step one.</small>
+        </div>
       </div>
-      <div class="card">
-        <div class="icon">🌊</div>
-        <h3>Steady, like water</h3>
-        <p>Small improvements compound. A swan looks calm on the surface; the progress comes from consistent, quiet paddling.</p>
+    </section>
+
+    <div class="water" aria-hidden="true"><svg viewBox="0 0 1200 18" preserveAspectRatio="none"><use href="#wave"/></svg></div>
+
+    <section id="hello">
+      <p class="kicker">Say hello</p>
+      <h2>Got an idea or a swan pun?</h2>
+      <div class="hello">
+        <p>Questions and ideas are welcome. Start a conversation or open an issue on one of my projects on GitHub.</p>
+        <a class="btn" href="https://github.com/Mnagingvi">Visit my GitHub</a>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- HOW -->
-  <section id="how">
-    <h2>How I work</h2>
-    <p class="sub">The same loop, every project.</p>
-    <div class="steps">
-      <div class="step"><div><b>Pick one project</b><span>Something I use or care about, with room to be a little better.</span></div></div>
-      <div class="step"><div><b>Spot one tiny thing</b><span>A broken link, an unclear README step, a small bug, a missing test.</span></div></div>
-      <div class="step"><div><b>Open an issue or a PR</b><span>Small, focused, well described. Never more than one idea at a time.</span></div></div>
-      <div class="step"><div><b>Learn from the review</b><span>Take feedback gracefully, adjust, and move on to the next tiny change.</span></div></div>
-    </div>
-  </section>
-
-  <!-- PROJECTS -->
-  <section id="projects">
-    <h2>Projects</h2>
-    <p class="sub">Pulled live from <a href="https://github.com/mnagingvi?tab=repositories" target="_blank" rel="noopener">github.com/mnagingvi</a>.</p>
-    <div id="repos" class="grid"><p class="status">Loading repositories…</p></div>
-  </section>
-
-  <section>
-    <div class="quote">
-      Just making small pull requests and issues,<br><em>one at a time.</em>
-    </div>
-  </section>
-
+  </div>
 </main>
 
 <footer>
   <div class="wrap">
-    <a href="https://github.com/mnagingvi" target="_blank" rel="noopener">github.com/mnagingvi</a>
-    · © <span id="year"></span> mnagingvi
+    <div class="foot">
+      <p>Paddling hard under the surface, gliding on top.</p>
+      <code>github.com/Mnagingvi</code>
+    </div>
   </div>
 </footer>
 
 <script>
-  document.getElementById("year").textContent = new Date().getFullYear();
+(function () {
+  var reduce = false;
+  try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
 
-  const box = document.getElementById("repos");
-  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  /* Rotating "today's small change" */
+  var rot = document.getElementById('rot');
+  var items = [
+    'a typo in the docs',
+    'the first line of a README',
+    'an unclear error message',
+    'a missing test',
+    'a dead link',
+    'one confusing variable name'
+  ];
+  var ri = 0;
+  if (rot && !reduce) {
+    setInterval(function () {
+      rot.classList.add('out');
+      setTimeout(function () {
+        ri = (ri + 1) % items.length;
+        rot.textContent = items[ri];
+        rot.classList.remove('out');
+      }, 300);
+    }, 2800);
+  }
 
-  fetch("https://api.github.com/users/mnagingvi/repos?per_page=100&sort=updated")
-    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(repos => {
-      repos = repos.filter(r => !r.fork).slice(0, 12);
-      if (!repos.length) {
-        box.innerHTML = '<p class="status">No public repositories yet. The first tiny change is coming soon. 🪶</p>';
-        return;
+  /* Poke the swan */
+  var btn = document.getElementById('swanBtn');
+  var bubble = document.getElementById('bubble');
+  var splash = document.getElementById('splash');
+  var phrases = [
+    'Honk! Small PRs only.',
+    'Have you read the README today?',
+    'One change. One merge.',
+    'Typos, beware.',
+    'I review what fits on one screen.',
+    'Merged. Gliding on.',
+    'Link the issue, please.',
+    'Tiny diff, big smile.'
+  ];
+  var pi = -1, hideTimer = null;
+  if (btn && bubble) {
+    btn.addEventListener('click', function () {
+      var next;
+      do { next = Math.floor(Math.random() * phrases.length); } while (next === pi);
+      pi = next;
+      bubble.textContent = phrases[pi];
+      bubble.classList.add('show');
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(function () { bubble.classList.remove('show'); }, 2600);
+      if (!reduce && splash) {
+        var el = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+        el.setAttribute('class', 'splash');
+        el.setAttribute('cx', '240');
+        el.setAttribute('cy', '392');
+        el.setAttribute('rx', '20');
+        el.setAttribute('ry', '4');
+        splash.appendChild(el);
+        setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 1000);
       }
-      box.innerHTML = repos.map(r => `
-        <a class="card repo" href="${esc(r.html_url)}" target="_blank" rel="noopener">
-          <h3>${esc(r.name)}</h3>
-          <p>${esc(r.description || "No description yet.")}</p>
-          <div class="meta">
-            ${r.language ? `<span class="tag">● ${esc(r.language)}</span>` : ""}
-            <span>★ ${r.stargazers_count}</span>
-            <span>⑂ ${r.forks_count}</span>
-          </div>
-        </a>`).join("");
-    })
-    .catch(() => {
-      box.innerHTML = '<p class="status">Couldn\'t load repositories right now. <a href="https://github.com/mnagingvi?tab=repositories" target="_blank" rel="noopener">View them on GitHub →</a></p>';
     });
+  }
+
+  /* Review meter */
+  var loc = document.getElementById('loc');
+  var out = document.getElementById('locOut');
+  var fill = document.getElementById('fill');
+  var vt = document.getElementById('vTitle');
+  var vx = document.getElementById('vText');
+  var tiers = [
+    { max: 25, cls: '', t: 'Read over coffee', x: 'About a minute. The reviewer says yes before the tea cools.' },
+    { max: 100, cls: '', t: 'Quick and friendly', x: 'A few minutes. The whole story fits in one head.' },
+    { max: 400, cls: 'warn', t: 'Needs a quiet hour', x: 'The reviewer will schedule it for later, and comments start to pile up.' },
+    { max: 1000, cls: 'bad', t: 'Postponed until further notice', x: 'Too much to hold at once. Expect a long wait and a request to split it.' },
+    { max: Infinity, cls: 'bad', t: 'The review queue sighs', x: 'Likely to sit for days while everyone looks the other way.' }
+  ];
+  function lines(v) { return Math.max(1, Math.round(Math.pow(10, v / 100 * 3.4))); }
+  function updateMeter() {
+    var v = +loc.value;
+    var n = lines(v);
+    var tier = tiers[tiers.length - 1];
+    for (var k = 0; k < tiers.length; k++) { if (n <= tiers[k].max) { tier = tiers[k]; break; } }
+    out.textContent = n.toLocaleString('en') + (n === 1 ? ' line' : ' lines');
+    fill.style.width = Math.max(4, v) + '%';
+    fill.className = 'fill' + (tier.cls ? ' ' + tier.cls : '');
+    vt.textContent = tier.t;
+    vx.textContent = tier.x;
+  }
+  if (loc) { loc.addEventListener('input', updateMeter); updateMeter(); }
+
+  /* Merge the sample PR */
+  var pr = document.getElementById('pr');
+  var mergeBtn = document.getElementById('mergeBtn');
+  var state = document.getElementById('prState');
+  var hint = document.getElementById('mergeHint');
+  var merged = false;
+  var colors = ['var(--hero-a)', 'var(--beak)', 'var(--blue)', 'var(--hero-b)'];
+  function burst() {
+    for (var i = 0; i < 18; i++) {
+      var f = document.createElement('i');
+      f.className = 'feather';
+      f.style.left = (8 + Math.random() * 84) + '%';
+      f.style.background = colors[i % colors.length];
+      f.style.setProperty('--dx', Math.round(Math.random() * 90 - 45) + 'px');
+      f.style.setProperty('--rot', Math.round(Math.random() * 540 - 270) + 'deg');
+      f.style.animationDelay = (Math.random() * 0.35).toFixed(2) + 's';
+      pr.appendChild(f);
+      (function (el) { setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 2200); })(f);
+    }
+  }
+  if (mergeBtn) {
+    mergeBtn.addEventListener('click', function () {
+      merged = !merged;
+      if (merged) {
+        state.textContent = 'Merged';
+        state.className = 'state merged';
+        mergeBtn.textContent = 'Reopen';
+        mergeBtn.className = 'merge done';
+        hint.textContent = 'Merged. That line is better for everyone now. On to the next small change.';
+        if (!reduce) burst();
+      } else {
+        state.textContent = 'Open';
+        state.className = 'state';
+        mergeBtn.textContent = 'Merge pull request';
+        mergeBtn.className = 'merge';
+        hint.textContent = 'Nothing real happens. Then it is back to step one.';
+      }
+    });
+  }
+})();
 </script>
-</body>
-</html>
+
+</body></html>
