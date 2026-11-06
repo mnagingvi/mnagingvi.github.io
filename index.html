@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mnagingvi · small pull requests, one at a time</title>
+<meta name="description" content="Improving every project with one tiny change.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='256' r='256' fill='%234C6495'/%3E%3Cpath fill='white' d='M97 291C129 315 152 282 198 282C218 282 238 286 252 294C278 309 296 302 296 281C296 258 272 240 272 207C272 164 299 131 335 131C358 131 373 146 373 164C373 179 362 187 348 186C332 185 324 175 314 181C300 191 303 211 315 228C337 258 353 278 344 309C333 350 296 374 242 378C178 384 121 361 105 325Z'/%3E%3Cpath fill='%23F4A052' d='M368 157L407 174Q390 183 369 180Z'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0f1a2e;
+    --bg2:#16243d;
+    --card:#1a2b48;
+    --line:#2c4268;
+    --text:#e8eef8;
+    --muted:#9db0cf;
+    --accent:#8598ce;
+    --orange:#f4a052;
+    --orange2:#df7c3e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:radial-gradient(1200px 600px at 50% -200px,#253b61 0%,var(--bg) 60%) no-repeat,var(--bg);
+    color:var(--text);
+    line-height:1.6;
+  }
+  a{color:var(--accent);text-decoration:none}
+  a:hover{color:var(--orange)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+
+  .banner{width:100%;display:block}
+  .banner img{width:100%;max-width:1100px;margin:0 auto;display:block}
+
+  nav{
+    display:flex;justify-content:center;gap:24px;flex-wrap:wrap;
+    padding:14px 0;font-size:.95rem;
+    border-bottom:1px solid var(--line);
+  }
+
+  .hero{
+    display:flex;align-items:center;gap:32px;flex-wrap:wrap;justify-content:center;
+    padding:56px 0 40px;
+  }
+  .avatar{
+    width:180px;height:180px;flex:none;border-radius:50%;
+    box-shadow:0 0 0 4px var(--line),0 20px 50px rgba(0,0,0,.45);
+    animation:float 6s ease-in-out infinite;
+  }
+  @keyframes float{50%{transform:translateY(-8px)}}
+  .hero h1{font-size:2.2rem;line-height:1.2}
+  .hero h1 span{color:var(--orange)}
+  .hero p{color:var(--muted);max-width:480px;margin:12px 0 20px}
+  .btn{
+    display:inline-block;padding:10px 20px;border-radius:999px;font-weight:600;
+    background:linear-gradient(135deg,var(--orange),var(--orange2));color:#1a1206;
+  }
+  .btn:hover{color:#1a1206;filter:brightness(1.08)}
+  .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line);margin-left:8px}
+  .btn.ghost:hover{color:var(--orange);border-color:var(--orange)}
+
+  section{padding:48px 0}
+  h2{font-size:1.5rem;margin-bottom:8px}
+  .sub{color:var(--muted);margin-bottom:28px}
+
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;
+    transition:transform .2s,border-color .2s;
+  }
+  .card:hover{transform:translateY(-3px);border-color:var(--accent)}
+  .card h3{font-size:1.05rem;margin-bottom:6px}
+  .card p{color:var(--muted);font-size:.95rem}
+  .icon{font-size:1.6rem;margin-bottom:10px}
+
+  .steps{counter-reset:s;display:grid;gap:14px}
+  .step{
+    counter-increment:s;display:flex;gap:16px;align-items:flex-start;
+    background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:16px 20px;
+  }
+  .step::before{
+    content:counter(s);flex:none;width:32px;height:32px;border-radius:50%;
+    display:grid;place-items:center;font-weight:700;color:#1a1206;
+    background:linear-gradient(135deg,var(--orange),var(--orange2));
+  }
+  .step b{display:block}
+  .step span{color:var(--muted);font-size:.95rem}
+
+  .repo{display:flex;flex-direction:column;gap:8px}
+  .repo .meta{display:flex;gap:14px;font-size:.82rem;color:var(--muted);margin-top:auto}
+  .repo .tag{color:var(--orange)}
+  .status{color:var(--muted);font-style:italic}
+
+  .quote{
+    text-align:center;font-size:1.25rem;color:var(--text);
+    padding:36px 20px;border:1px dashed var(--line);border-radius:18px;background:var(--bg2);
+  }
+  .quote em{color:var(--orange);font-style:normal}
+
+  footer{
+    text-align:center;color:var(--muted);font-size:.9rem;
+    padding:32px 0 48px;border-top:1px solid var(--line);margin-top:24px;
+  }
+  @media (prefers-reduced-motion:reduce){.avatar{animation:none}}
+</style>
+</head>
+<body>
+
+<a class="banner" href="https://github.com/mnagingvi">
+  <img alt="mnagingvi: Just making small pull requests and issues, one at a time"
+       src="https://capsule-render.vercel.app/api?type=blur&height=300&color=gradient&section=header&reversal=false&text=mnagingvi&textBg=false&fontSize=70&fontAlign=50&fontAlignY=50&rotate=0&strokeWidth=0&desc=Just+Making+Small+Small+Pull+request+the+issue.+one+time+at+a+time.&descSize=20&descAlign=50&descAlignY=70">
+</a>
+
+<nav class="wrap">
+  <a href="#philosophy">Philosophy</a>
+  <a href="#how">How I work</a>
+  <a href="#projects">Projects</a>
+  <a href="https://github.com/mnagingvi" target="_blank" rel="noopener">GitHub ↗</a>
+</nav>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <svg class="avatar" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="av-title av-desc">
+      <title id="av-title">Swan profile picture</title>
+      <desc id="av-desc">A graceful white swan with an orange beak on a circular twilight-blue background.</desc>
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+          <stop stop-color="#8598CE"/><stop offset=".55" stop-color="#4C6495"/><stop offset="1" stop-color="#253B61"/>
+        </linearGradient>
+        <linearGradient id="feathers" x1="0" y1="0" x2=".3" y2="1">
+          <stop stop-color="#FFFFFF"/><stop offset="1" stop-color="#E6EEF6"/>
+        </linearGradient>
+        <linearGradient id="wing" x1="0" y1="0" x2=".6" y2="1">
+          <stop stop-color="#F6F8FC"/><stop offset="1" stop-color="#C9D7EA"/>
+        </linearGradient>
+        <clipPath id="circle"><circle cx="256" cy="256" r="256"/></clipPath>
+      </defs>
+      <g clip-path="url(#circle)">
+        <path fill="url(#sky)" d="M0 0h512v512H0z"/>
+        <circle cx="157" cy="157" r="57" fill="#FFEAC2" opacity=".18"/>
+        <circle cx="112" cy="229" r="3" fill="#FFFFFF" opacity=".45"/>
+        <circle cx="403" cy="255" r="2.5" fill="#FFFFFF" opacity=".4"/>
+        <path d="M0 354Q256 319 512 354V512H0Z" fill="#193455" opacity=".24"/>
+        <ellipse cx="248" cy="391" rx="142" ry="12" fill="#C3D8F0" opacity=".12"/>
+        <g fill="none" stroke="#C5DDF3" stroke-linecap="round">
+          <path d="M105 391Q246 416 386 391" stroke-width="4" opacity=".45"/>
+          <path d="M152 420Q248 434 341 419" stroke-width="3" opacity=".25"/>
+        </g>
+        <path d="M97 291C129 315 152 282 198 282C218 282 238 286 252 294C278 309 296 302 296 281C296 258 272 240 272 207C272 164 299 131 335 131C358 131 373 146 373 164C373 179 362 187 348 186C332 185 324 175 314 181C300 191 303 211 315 228C337 258 353 278 344 309C333 350 296 374 242 378C178 384 121 361 105 325Z" fill="url(#feathers)"/>
+        <path d="M314 181C300 191 303 211 315 228C337 258 353 278 344 309C337 335 319 353 291 365C315 338 325 318 325 296C325 267 305 246 295 222C287 204 295 188 309 182Z" fill="#C7D6E8" opacity=".5"/>
+        <path d="M139 309C177 281 237 283 276 316C291 329 307 334 323 327C303 352 267 366 226 361C185 357 155 337 139 309Z" fill="url(#wing)"/>
+        <g fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" opacity=".72">
+          <path d="M159 312Q204 339 270 325"/>
+          <path d="M176 333Q217 352 269 342"/>
+        </g>
+        <path d="M368 157L407 174Q390 183 369 180Z" fill="#F4A052"/>
+        <path d="M371 172L407 174Q390 183 369 180Z" fill="#DF7C3E"/>
+        <path d="M359 148C368 152 373 159 373 166L371 180C363 181 357 178 354 172C361 168 362 158 359 148Z" fill="#253046"/>
+        <circle cx="346" cy="158" r="4" fill="#253046"/>
+        <circle cx="347" cy="157" r="1.2" fill="#FFFFFF"/>
+      </g>
+    </svg>
+
+    <div>
+      <h1>Hi, I'm <span>mnagingvi</span> 👋</h1>
+      <p>I improve projects with one tiny change at a time: a small pull request, a focused issue, a little less friction for the next person.</p>
+      <a class="btn" href="https://github.com/mnagingvi" target="_blank" rel="noopener">View my GitHub</a>
+      <a class="btn ghost" href="#projects">See projects</a>
+    </div>
+  </div>
+
+  <!-- PHILOSOPHY -->
+  <section id="philosophy">
+    <h2>Small on purpose</h2>
+    <p class="sub">Big rewrites get stuck in review. Tiny changes get merged.</p>
+    <div class="grid">
+      <div class="card">
+        <div class="icon">🪶</div>
+        <h3>One change per PR</h3>
+        <p>A typo, a clearer error message, a missing doc line. Each pull request does exactly one thing, so it's easy to review and easy to revert.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🔍</div>
+        <h3>One issue at a time</h3>
+        <p>Issues that are specific, reproducible and kind. One problem per issue, with enough detail for a maintainer to act on it.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🌊</div>
+        <h3>Steady, like water</h3>
+        <p>Small improvements compound. A swan looks calm on the surface; the progress comes from consistent, quiet paddling.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section id="how">
+    <h2>How I work</h2>
+    <p class="sub">The same loop, every project.</p>
+    <div class="steps">
+      <div class="step"><div><b>Pick one project</b><span>Something I use or care about, with room to be a little better.</span></div></div>
+      <div class="step"><div><b>Spot one tiny thing</b><span>A broken link, an unclear README step, a small bug, a missing test.</span></div></div>
+      <div class="step"><div><b>Open an issue or a PR</b><span>Small, focused, well described. Never more than one idea at a time.</span></div></div>
+      <div class="step"><div><b>Learn from the review</b><span>Take feedback gracefully, adjust, and move on to the next tiny change.</span></div></div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <h2>Projects</h2>
+    <p class="sub">Pulled live from <a href="https://github.com/mnagingvi?tab=repositories" target="_blank" rel="noopener">github.com/mnagingvi</a>.</p>
+    <div id="repos" class="grid"><p class="status">Loading repositories…</p></div>
+  </section>
+
+  <section>
+    <div class="quote">
+      Just making small pull requests and issues,<br><em>one at a time.</em>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <a href="https://github.com/mnagingvi" target="_blank" rel="noopener">github.com/mnagingvi</a>
+    · © <span id="year"></span> mnagingvi
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  const box = document.getElementById("repos");
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  fetch("https://api.github.com/users/mnagingvi/repos?per_page=100&sort=updated")
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(repos => {
+      repos = repos.filter(r => !r.fork).slice(0, 12);
+      if (!repos.length) {
+        box.innerHTML = '<p class="status">No public repositories yet. The first tiny change is coming soon. 🪶</p>';
+        return;
+      }
+      box.innerHTML = repos.map(r => `
+        <a class="card repo" href="${esc(r.html_url)}" target="_blank" rel="noopener">
+          <h3>${esc(r.name)}</h3>
+          <p>${esc(r.description || "No description yet.")}</p>
+          <div class="meta">
+            ${r.language ? `<span class="tag">● ${esc(r.language)}</span>` : ""}
+            <span>★ ${r.stargazers_count}</span>
+            <span>⑂ ${r.forks_count}</span>
+          </div>
+        </a>`).join("");
+    })
+    .catch(() => {
+      box.innerHTML = '<p class="status">Couldn\'t load repositories right now. <a href="https://github.com/mnagingvi?tab=repositories" target="_blank" rel="noopener">View them on GitHub →</a></p>';
+    });
+</script>
+</body>
+</html>
